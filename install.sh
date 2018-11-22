@@ -67,9 +67,9 @@ function download_node() {
   chmod +x $COIN_DAEMON
   chmod +x $COIN_CLI
   sudo chown -R root:users $COIN_PATH
-  cp $COIN_DAEMON $COIN_PATH
+  sudo bash -c "cp $COIN_DAEMON $COIN_PATH"
   cp $COIN_DAEMON /home/$USER
-  cp $COIN_CLI $COIN_PATH
+  sudo bash -c "cp $COIN_CLI $COIN_PATH"
   cp $COIN_CLI /home/$USER
   cd ~ >/dev/null 2>&1
   rm -rf $TMP_FOLDER >/dev/null 2>&1
@@ -84,7 +84,7 @@ Description=$COIN_NAME service
 After=network.target
 
 [Service]
-User=$USER    
+User=$USER	
 Group=$USER
 
 Type=forking
@@ -303,4 +303,3 @@ checks
 prepare_system
 download_node
 setup_node
-
