@@ -1,8 +1,8 @@
- #!/bin/bash
+#!/bin/bash
 
 TMP_FOLDER=$(mktemp -d)
 CONFIG_FILE='condominium.conf'
-CONFIGFOLDER='~/.condominium'
+CONFIGFOLDER='/home/$USER/.condominium'
 COIN_DAEMON='condominiumd'
 COIN_CLI='condominium-cli'
 COIN_PATH='/usr/local/bin/'
@@ -167,10 +167,10 @@ EOF
 
 function enable_firewall() {
   echo -e "Installing and setting up firewall to allow ingress on port ${GREEN}$COIN_PORT${NC}"
-  ufw allow $COIN_PORT/tcp comment "$COIN_NAME MN port" >/dev/null
-  ufw allow ssh comment "SSH" >/dev/null 2>&1
-  ufw limit ssh/tcp >/dev/null 2>&1
-  ufw default allow outgoing >/dev/null 2>&1
+  sudo ufw allow $COIN_PORT/tcp comment "$COIN_NAME MN port" >/dev/null
+  sudo ufw allow ssh comment "SSH" >/dev/null 2>&1
+  sudo ufw limit ssh/tcp >/dev/null 2>&1
+  sudo ufw default allow outgoing >/dev/null 2>&1
   echo "y" | ufw enable >/dev/null 2>&1
 }
 
@@ -284,7 +284,7 @@ function setup_node() {
   enable_firewall
   #install_sentinel
   important_information
-  sudo configure_systemd
+  configure_systemd
 }
 
 
@@ -296,4 +296,3 @@ checks
 prepare_system
 download_node
 setup_node
-
