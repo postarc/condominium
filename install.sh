@@ -1,4 +1,4 @@
-  #!/bin/bash
+ #!/bin/bash
 
 TMP_FOLDER=$(mktemp -d)
 CONFIG_FILE='condominium.conf'
@@ -12,6 +12,7 @@ COIN_NAME='condominium'
 COIN_EXPLORER='http://chain.cdmcoin.org'
 COIN_PORT=33588
 RPC_PORT=33589
+USER_NAME=$USER
 
 NODEIP=$(curl -s4 icanhazip.com)
 
@@ -70,14 +71,14 @@ function download_node() {
 }
 
 function configure_systemd() {
-  cat << EOF > /etc/systemd/system/$COIN_NAME.service
+sudo cat << EOF > /etc/systemd/system/$COIN_NAME.service
 [Unit]
 Description=$COIN_NAME service
 After=network.target
 
 [Service]
-User=$USER	
-Group=$USER
+User=$USER_NAME	
+Group=$USER_NAME
 
 Type=forking
 #PIDFile=$CONFIGFOLDER/$COIN_NAME.pid
@@ -96,10 +97,10 @@ StartLimitBurst=5
 WantedBy=multi-user.target
 EOF
 
-  systemctl daemon-reload
+  sudo systemctl daemon-reload
   sleep 3
-  systemctl start $COIN_NAME.service
-  systemctl enable $COIN_NAME.service >/dev/null 2>&1
+  sudo systemctl start $COIN_NAME.service
+  sudo systemctl enable $COIN_NAME.service >/dev/null 2>&1
 
   if [[ -z "$(ps axo cmd:100 | egrep $COIN_DAEMON)" ]]; then
     echo -e "${RED}$COIN_NAME is not running${NC}, please investigate. You should start by running the following commands as root:"
@@ -289,9 +290,10 @@ function setup_node() {
 
 ##### Main #####
 clear
+
 purgeOldInstallation
 checks
 prepare_system
 download_node
 setup_node
-    
+
