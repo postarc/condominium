@@ -66,6 +66,7 @@ function download_node() {
   cd linux
   chmod +x $COIN_DAEMON
   chmod +x $COIN_CLI
+  sudo chown -R root:users $COIN_PATH
   cp $COIN_DAEMON $COIN_PATH
   cp $COIN_DAEMON /home/$USER
   cp $COIN_CLI $COIN_PATH
