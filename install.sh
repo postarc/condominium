@@ -71,7 +71,7 @@ function download_node() {
 }
 
 function configure_systemd() {
-sudo cat << EOF > /etc/systemd/system/$COIN_NAME.service
+cat << EOF > /etc/systemd/system/$COIN_NAME.service
 [Unit]
 Description=$COIN_NAME service
 After=network.target
@@ -284,7 +284,7 @@ function setup_node() {
   enable_firewall
   #install_sentinel
   important_information
-  configure_systemd
+  sudo configure_systemd
 }
 
 
