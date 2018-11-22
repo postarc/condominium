@@ -2,7 +2,11 @@
 
 TMP_FOLDER=$(mktemp -d)
 CONFIG_FILE='condominium.conf'
-CONFIGFOLDER='/home/$USER/.condominium'
+if ($USER==root) then
+	CONFIGFOLDER='/root/.condominium'
+ else 
+ 	CONFIGFOLDER='/home/$USER/.condominium'
+fi
 COIN_DAEMON='condominiumd'
 COIN_CLI='condominium-cli'
 COIN_PATH='/usr/local/bin/'
