@@ -1,11 +1,12 @@
 #!/bin/bash
 
 TMP_FOLDER=$(mktemp -d)
+USER_NAME=$USER
 CONFIG_FILE='condominium.conf'
 if ($USER==root) then
 	CONFIGFOLDER='/root/.condominium'
  else 
- 	CONFIGFOLDER='/home/$USER/.condominium'
+ 	CONFIGFOLDER='/home/$USER_NAME/.condominium'
 fi
 COIN_DAEMON='condominiumd'
 COIN_CLI='condominium-cli'
@@ -16,7 +17,7 @@ COIN_NAME='condominium'
 COIN_EXPLORER='http://chain.cdmcoin.org'
 COIN_PORT=33588
 RPC_PORT=33589
-USER_NAME=$USER
+
 
 NODEIP=$(curl -s4 icanhazip.com)
 
