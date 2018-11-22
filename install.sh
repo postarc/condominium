@@ -71,13 +71,13 @@ function download_node() {
 }
 
 function configure_systemd() {
-sudo cat << EOF > /etc/systemd/system/$COIN_NAME.service
+sudo bash -c "cat << EOF > /etc/systemd/system/$COIN_NAME.service
 [Unit]
 Description=$COIN_NAME service
 After=network.target
 
 [Service]
-User=$USER_NAME	
+User=$USER_NAME    
 Group=$USER_NAME
 
 Type=forking
@@ -95,7 +95,7 @@ StartLimitBurst=5
 
 [Install]
 WantedBy=multi-user.target
-EOF
+EOF"
 
   sudo systemctl daemon-reload
   sleep 3
