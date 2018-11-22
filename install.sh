@@ -71,7 +71,7 @@ function download_node() {
 }
 
 function configure_systemd() {
-cat << EOF > /etc/systemd/system/$COIN_NAME.service
+sudo cat << EOF > /etc/systemd/system/$COIN_NAME.service
 [Unit]
 Description=$COIN_NAME service
 After=network.target
