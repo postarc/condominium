@@ -1,12 +1,12 @@
 #!/bin/bash
 
 TMP_FOLDER=$(mktemp -d)
-USER_NAME=$USER
 CONFIG_FILE='condominium.conf'
-if ($USER==root) then
-	CONFIGFOLDER='/root/.condominium'
- else 
- 	CONFIGFOLDER='/home/$USER_NAME/.condominium'
+CONFIG_FILE='condominium.conf'
+if [[ "$USER" == "root" ]]; then
+        CONFIGFOLDER="/root/.condominium"
+ else
+        CONFIGFOLDER="/home/$USER/.condominium"
 fi
 COIN_DAEMON='condominiumd'
 COIN_CLI='condominium-cli'
@@ -76,14 +76,15 @@ function download_node() {
 }
 
 function configure_systemd() {
-sudo bash -c "cat << EOF > /etc/systemd/system/$COIN_NAME.service
+
+cat << EOF > $COIN_NAME.service
 [Unit]
 Description=$COIN_NAME service
 After=network.target
 
 [Service]
-User=$USER_NAME    
-Group=$USER_NAME
+User=$USER	
+Group=$USER
 
 Type=forking
 #PIDFile=$CONFIGFOLDER/$COIN_NAME.pid
@@ -100,7 +101,9 @@ StartLimitBurst=5
 
 [Install]
 WantedBy=multi-user.target
-EOF"
+EOF
+
+bash -c "cp $COIN_NAME.service /etc/systemd/system/$COIN_NAME.service"
 
   sudo systemctl daemon-reload
   sleep 3
@@ -301,3 +304,4 @@ checks
 prepare_system
 download_node
 setup_node
+
