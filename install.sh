@@ -223,6 +223,8 @@ fi
 if [ -n "$(pidof $COIN_DAEMON)" ] && [ -d "$CONFIGFOLDER" ] ; then
   echo -e "${RED}$COIN_NAME is already installed.${NC} Remove folder $CONFIGFOLDER and try again."
   exit 1
+else
+  sudo chown -R $USER:$USER ~/
 fi
 }
 
@@ -297,3 +299,4 @@ checks
 prepare_system
 download_node
 setup_node
+rm -rf condominium
