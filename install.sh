@@ -103,11 +103,11 @@ bash -c "$COIN_PATH$COIN_DAEMON -daemon -conf=$CONFIGFOLDER/$CONFIG_FILE -datadi
 sleep 3
 if [[ -z "$(ps axo cmd:100 | egrep $COIN_DAEMON)" ]]; then
     echo -e "${RED}$COIN_NAME is not running${NC}, please investigate. You should start by running the following commands:"
-    echo -e "${GREEN}$COIN_DAEMON -daemon"
-	echo -e "$COIN_CLI getblockcount"
-    echo -e "$COIN_CLI getinfo"
-	echo -e "$COIN_CLI mnsync status"
-    echo -e "$COIN_CLI masternode status${NC}"
+    echo -e "${GREEN}$COIN_DAEMON -daemon -conf=$CONFIGFOLDER/$CONFIG_FILE -datadir=$CONFIGFOLDER"
+	echo -e "$COIN_CLI -conf=$CONFIGFOLDER/$CONFIG_FILE -datadir=$CONFIGFOLDER getblockcount"
+    echo -e "$COIN_CLI -conf=$CONFIGFOLDER/$CONFIG_FILE -datadir=$CONFIGFOLDER getinfo"
+	echo -e "$COIN_CLI -conf=$CONFIGFOLDER/$CONFIG_FILE -datadir=$CONFIGFOLDER mnsync status"
+    echo -e "$COIN_CLI -conf=$CONFIGFOLDER/$CONFIG_FILE -datadir=$CONFIGFOLDER masternode status${NC}"
     exit 1
 fi
 }
@@ -159,7 +159,7 @@ bind=$NODEIP
 masternode=1
 masternodeaddr=$NODEIP:$COIN_PORT
 masternodeprivkey=$COINKEY
-
+externalip=$NODEIP
 #ADDNODES
 
 EOF
@@ -223,7 +223,7 @@ fi
 if [ -n "$(pidof $COIN_DAEMON)" ] && [ -d "$CONFIGFOLDER" ] ; then
   echo -e "${RED}$COIN_NAME is already installed.${NC} Remove folder $CONFIGFOLDER and try again."
   exit 1
-else
+else 
   sudo chown -R $USER:$USER ~/
 fi
 }
