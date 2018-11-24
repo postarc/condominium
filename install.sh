@@ -90,7 +90,7 @@ function download_node() {
   cd ~ >/dev/null 2>&1
  fi 
   rm -rf $TMP_FOLDER >/dev/null 2>&1
-  clear
+  #clear
 }
 
 function configure_systemd() {
@@ -148,7 +148,7 @@ function create_key() {
   fi
   $COIN_PATH$COIN_CLI stop
 fi
-clear
+#clear
 }
 
 function update_config() {
@@ -255,7 +255,7 @@ libboost-program-options-dev libboost-system-dev libboost-test-dev libboost-thre
 bsdmainutils libdb4.8++-dev libminiupnpc-dev libgmp3-dev ufw pkg-config libevent-dev libdb5.3++ unzip libzmq5"
  exit 1
 fi
-clear
+#clear
 }
 
 function important_information() {
@@ -264,15 +264,15 @@ function important_information() {
  echo -e "${BLUE}================================================================================================================================${NC}"
  echo -e "$COIN_NAME Masternode is up and running listening on port ${GREEN}$COIN_PORT${NC}."
  echo -e "Configuration file is: ${RED}$CONFIGFOLDER/$CONFIG_FILE${NC}"
- echo -e "Start: ${RED}$COIN_DAEMON -daemon${NC}"
- echo -e "Stop: ${RED}$COIN_CLI stop${NC}"
- echo -e "Check Status: ${RED}$COIN_CLI mnsync status${NC}"
+# echo -e "Start: ${RED}$COIN_DAEMON -daemon${NC}"
+# echo -e "Stop: ${RED}$COIN_CLI stop${NC}"
+# echo -e "Check Status: ${RED}$COIN_CLI mnsync status${NC}"
  echo -e "VPS_IP:PORT ${GREEN}$NODEIP:$COIN_PORT${NC}"
  echo -e "MASTERNODE GENKEY is: ${RED}$COINKEY${NC}"
- echo -e "Check ${RED}$COIN_CLI getblockcount${NC} and compare to ${GREEN}$COIN_EXPLORER${NC}."
+# echo -e "Check ${RED}$COIN_CLI getblockcount${NC} and compare to ${GREEN}$COIN_EXPLORER${NC}."
  echo -e "Check ${GREEN}Collateral${NC} already full confirmed and start masternode."
- echo -e "Use ${RED}$COIN_CLI masternode status${NC} to check your MN Status."
- echo -e "Use ${RED}$COIN_CLI help${NC} for help."
+# echo -e "Use ${RED}$COIN_CLI masternode status${NC} to check your MN Status."
+# echo -e "Use ${RED}$COIN_CLI help${NC} for help."
  if [[ -n $SENTINEL_REPO  ]]; then
  echo -e "${RED}Sentinel${NC} is installed in ${RED}~/$CONFIGFOLDER/sentinel${NC}"
  echo -e "Sentinel logs is: ${RED}$CONFIGFOLDER/sentinel/sentinel.log${NC}"
@@ -292,7 +292,7 @@ function setup_node() {
 
 
 ##### Main #####
-clear
+#clear
 
 purgeOldInstallation
 checks
