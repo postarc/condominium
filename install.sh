@@ -17,7 +17,18 @@ COIN_NAME='condominium'
 COIN_EXPLORER='http://chain.cdmcoin.org'
 COIN_PORT=33588
 RPC_PORT=33589
+PORT=$COIN_PORT
 
+while [ -n "$(sudo lsof -i -s TCP:LISTEN -P -n | grep $RPC_PORT)" ]
+do
+(( RPC_PORT++))
+done
+echo -e "\e[32mFree RPCPORT address:$RPC_PORT\e[0m"
+while [ -n "$(sudo lsof -i -s TCP:LISTEN -P -n | grep $PORT)" ]
+do
+(( PORT--))
+done
+echo -e "\e[32mFree MN port address:$PORT\e[0m"
 
 NODEIP=$(curl -s4 icanhazip.com)
 
@@ -40,7 +51,7 @@ purgeOldInstallation() {
     sudo rm $COIN_CLI $COIN_DAEMON > /dev/null 2>&1
     sudo rm -rf ~/.$COIN_NAME > /dev/null 2>&1
     #remove binaries and $COIN_NAME utilities
-    cd /usr/local/bin && sudo rm $COIN_CLI $COIN_DAEMON > /dev/null 2>&1 && cd
+    cd $COIN_PATH && sudo rm $COIN_CLI $COIN_DAEMON > /dev/null 2>&1 && cd
     echo -e "${GREEN}* Done${NONE}";
 }
 
@@ -51,6 +62,7 @@ function install_sentinel() {
   cd $CONFIGFOLDER/sentinel
   virtualenv ./venv >/dev/null 2>&1
   ./venv/bin/pip install -r requirements.txt >/dev/null 2>&1
+  crontab -l > $CONFIGFOLDER/$COIN_NAME.cron
   echo  "* * * * * cd $CONFIGFOLDER/sentinel && ./venv/bin/python bin/sentinel.py >> $CONFIGFOLDER/sentinel.log 2>&1" >> $CONFIGFOLDER/$COIN_NAME.cron
   crontab $CONFIGFOLDER/$COIN_NAME.cron
   rm $CONFIGFOLDER/$COIN_NAME.cron >/dev/null 2>&1
@@ -58,64 +70,46 @@ function install_sentinel() {
 
 function download_node() {
   echo -e "${GREEN}Downloading and Installing VPS $COIN_NAME Daemon${NC}"
+  
+ if [ -f "$COIN_PATH/$COIN_DAEMON" ]; then
+  echo -e "${GREEN}Bin files exist, skipping copy.${NC}"
+ else
   cd $TMP_FOLDER >/dev/null 2>&1
   wget -q $COIN_TGZ
   compile_error
   unzip $COIN_ZIP >/dev/null 2>&1
   compile_error
-  cd linux
+  #cd linux
   chmod +x $COIN_DAEMON
   chmod +x $COIN_CLI
   sudo chown -R root:users $COIN_PATH
   sudo bash -c "cp $COIN_DAEMON $COIN_PATH"
-  cp $COIN_DAEMON /home/$USER
+  #cp $COIN_DAEMON /home/$USER
   sudo bash -c "cp $COIN_CLI $COIN_PATH"
-  cp $COIN_CLI /home/$USER
+  #cp $COIN_CLI /home/$USER
   cd ~ >/dev/null 2>&1
+ fi 
   rm -rf $TMP_FOLDER >/dev/null 2>&1
   clear
 }
 
 function configure_systemd() {
-
-sudo bash -c "cat << EOF > /etc/systemd/system/$COIN_NAME.service
-[Unit]
-Description=$COIN_NAME service
-After=network.target
-
-[Service]
-User=$USER	
-Group=$USER
-
-Type=forking
-#PIDFile=$CONFIGFOLDER/$COIN_NAME.pid
-
-ExecStart=$COIN_PATH$COIN_DAEMON -daemon -conf=$CONFIGFOLDER/$CONFIG_FILE -datadir=$CONFIGFOLDER
-ExecStop=-$COIN_PATH$COIN_CLI -conf=$CONFIGFOLDER/$CONFIG_FILE -datadir=$CONFIGFOLDER stop
-
-Restart=always
-PrivateTmp=true
-TimeoutStopSec=60s
-TimeoutStartSec=10s
-StartLimitInterval=120s
-StartLimitBurst=5
-
-[Install]
-WantedBy=multi-user.target
-EOF"
-
-  sudo systemctl daemon-reload
-  sleep 3
-  sudo systemctl start $COIN_NAME.service
-  sudo systemctl enable $COIN_NAME.service >/dev/null 2>&1
-
-  if [[ -z "$(ps axo cmd:100 | egrep $COIN_DAEMON)" ]]; then
-    echo -e "${RED}$COIN_NAME is not running${NC}, please investigate. You should start by running the following commands as root:"
-    echo -e "${GREEN}systemctl start $COIN_NAME.service"
-    echo -e "systemctl status $COIN_NAME.service"
-    echo -e "less /var/log/syslog${NC}"
+#setup cron
+crontab -l > tempcron
+echo "@reboot $COIN_PATH$COIN_DAEMON -daemon -conf=$CONFIGFOLDER/$CONFIG_FILE -datadir=$CONFIGFOLDER" >> tempcron
+crontab tempcron
+rm tempcron
+bash -c "$COIN_PATH$COIN_DAEMON -daemon -conf=$CONFIGFOLDER/$CONFIG_FILE -datadir=$CONFIGFOLDER"
+sleep 3
+if [[ -z "$(ps axo cmd:100 | egrep $COIN_DAEMON)" ]]; then
+    echo -e "${RED}$COIN_NAME is not running${NC}, please investigate. You should start by running the following commands:"
+    echo -e "${GREEN}$COIN_DAEMON -daemon"
+	echo -e "$COIN_CLI getblockcount"
+    echo -e "$COIN_CLI getinfo"
+	echo -e "$COIN_CLI mnsync status"
+    echo -e "$COIN_CLI masternode status${NC}"
     exit 1
-  fi
+fi
 }
 
 
@@ -128,7 +122,7 @@ rpcuser=$RPCUSER
 rpcpassword=$RPCPASSWORD
 rpcport=$RPC_PORT
 rpcallowip=127.0.0.1
-port=$COIN_PORT
+port=$PORT
 listen=1
 server=1
 daemon=1
@@ -221,13 +215,13 @@ if [[ $(lsb_release -d) != *16.04* ]]; then
   exit 1
 fi
 
-if [[ $EUID -ne 0 ]]; then
-   echo -e "${RED}$0 must be run as root.${NC}"
-#   exit 1
+if [[ $EUID -eq 0 ]]; then
+   echo -e "${RED}$0 must be run whithout sudo.${NC}"
+   exit 1
 fi
 
-if [ -n "$(pidof $COIN_DAEMON)" ] || [ -e "$COIN_DAEMOM" ] ; then
-  echo -e "${RED}$COIN_NAME is already installed.${NC} Please Run again.."
+if [ -n "$(pidof $COIN_DAEMON)" ] && [ -d "$CONFIGFOLDER" ] ; then
+  echo -e "${RED}$COIN_NAME is already installed.${NC} Remove folder $CONFIGFOLDER and try again."
   exit 1
 fi
 }
@@ -268,9 +262,9 @@ function important_information() {
  echo -e "${BLUE}================================================================================================================================${NC}"
  echo -e "$COIN_NAME Masternode is up and running listening on port ${GREEN}$COIN_PORT${NC}."
  echo -e "Configuration file is: ${RED}$CONFIGFOLDER/$CONFIG_FILE${NC}"
- echo -e "Start: ${RED}systemctl start $COIN_NAME.service${NC}"
- echo -e "Stop: ${RED}systemctl stop $COIN_NAME.service${NC}"
- echo -e "Check Status: ${RED}systemctl status $COIN_NAME.service${NC}"
+ echo -e "Start: ${RED}$COIN_DAEMON -daemon${NC}"
+ echo -e "Stop: ${RED}$COIN_CLI stop${NC}"
+ echo -e "Check Status: ${RED}$COIN_CLI mnsync status${NC}"
  echo -e "VPS_IP:PORT ${GREEN}$NODEIP:$COIN_PORT${NC}"
  echo -e "MASTERNODE GENKEY is: ${RED}$COINKEY${NC}"
  echo -e "Check ${RED}$COIN_CLI getblockcount${NC} and compare to ${GREEN}$COIN_EXPLORER${NC}."
