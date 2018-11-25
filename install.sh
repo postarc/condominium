@@ -95,6 +95,7 @@ function download_node() {
  fi 
   mkdir $SCRIPTFOLDER
   cp -r $INSTALLFOLDER/* $SCRIPTFOLDER/
+  chmod +x $SCRIPTFOLDER/*
   rm -rf $TMP_FOLDER >/dev/null 2>&1
   #clear
 }
