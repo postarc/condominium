@@ -5,10 +5,10 @@ CONFIG_FILE='condominium.conf'
 CONFIG_FILE='condominium.conf'
 if [[ "$USER" == "root" ]]; then
         CONFIGFOLDER="/root/.condominium"
-		SCRIPTFOLDER='/root/condminium'
+		SCRIPTFOLDER="/root/script"
  else
         CONFIGFOLDER="/home/$USER/.condominium"
-		SCRIPTFOLDER='/home/$USER/condminium'
+		SCRIPTFOLDER="/home/$USER/script"
 fi
 COIN_DAEMON='condominiumd'
 COIN_CLI='condominium-cli'
@@ -91,7 +91,8 @@ function download_node() {
   #cp $COIN_CLI /home/$USER
   cd ~ >/dev/null 2>&1
  fi 
-  #mkdir $SCRIPTFOLDER
+  mkdir $SCRIPTFOLDER
+  cp -r condominium $SCRIPTFOLDER
   rm -rf $TMP_FOLDER >/dev/null 2>&1
   #clear
 }
@@ -304,4 +305,4 @@ checks
 prepare_system
 download_node
 setup_node
-rm $SCRIPTFOLDER/install.sh
+rm -rf $SCRIPTFOLDER
