@@ -10,7 +10,7 @@ currentBlock=$(condominium-cli $1 $2 getblockcount)
 condominium-cli $1 $2 getblockcount > ~/condominium/blockcount
 
 if [ "$previousBlock" == "$currentBlock" ]; then
-  condominium $1 $2 stop
+  condominium-cli $1 $2 stop
   sleep 5
   condominiumd -daemon $1 $2 
 fi 
