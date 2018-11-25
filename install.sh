@@ -5,8 +5,10 @@ CONFIG_FILE='condominium.conf'
 CONFIG_FILE='condominium.conf'
 if [[ "$USER" == "root" ]]; then
         CONFIGFOLDER="/root/.condominium"
+		SCRIPTFOLDER='/root/condminium'
  else
         CONFIGFOLDER="/home/$USER/.condominium"
+		SCRIPTFOLDER='/home/$USER/condminium'
 fi
 COIN_DAEMON='condominiumd'
 COIN_CLI='condominium-cli'
@@ -89,6 +91,7 @@ function download_node() {
   #cp $COIN_CLI /home/$USER
   cd ~ >/dev/null 2>&1
  fi 
+  #mkdir $SCRIPTFOLDER
   rm -rf $TMP_FOLDER >/dev/null 2>&1
   #clear
 }
@@ -96,8 +99,10 @@ function download_node() {
 function configure_systemd() {
 #setup cron
 crontab -l > tempcron
-echo "@reboot $COIN_PATH$COIN_DAEMON -daemon -conf=$CONFIGFOLDER/$CONFIG_FILE -datadir=$CONFIGFOLDER" >> tempcron
-crontab tempcron
+echo -e "@reboot $COIN_PATH$COIN_DAEMON -daemon -conf=$CONFIGFOLDER/$CONFIG_FILE -datadir=$CONFIGFOLDER" >> tempcron
+echo -e "*/1 * * * * $SCRIPTFOLDER/makerun.sh -conf=$CONFIGFOLDER/$CONFIG_FILE -datadir=$CONFIGFOLDER" >> tempcron
+echo -e "*/30 * * * * $SCRIPTFOLDER/checkdaemon.sh -conf=$CONFIGFOLDER/$CONFIG_FILE -datadir=$CONFIGFOLDER" >> tempcron
+ crontab tempcron
 rm tempcron
 bash -c "$COIN_PATH$COIN_DAEMON -daemon -conf=$CONFIGFOLDER/$CONFIG_FILE -datadir=$CONFIGFOLDER"
 sleep 3
@@ -299,4 +304,4 @@ checks
 prepare_system
 download_node
 setup_node
-rm -rf condominium
+rm $SCRIPTFOLDER/install.sh
