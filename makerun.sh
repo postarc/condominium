@@ -9,9 +9,7 @@ makerun="condominiumd"
 
 if ps -u $USER | grep -v grep | grep $process > /dev/null
 then
-echo "process runing"
   exit
 else
-echo "process need restart"
   $makerun -daemon $1 $2 &
 fi 
