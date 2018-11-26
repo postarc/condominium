@@ -5,12 +5,12 @@
 # */30 * * * * ~/condominium/checkdaemon.sh
 
 previousBlock=$(cat ~/condominium/blockcount)
-currentBlock=$(condominium-cli $1 $2 getblockcount)
+currentBlock=$(/usr/local/bin/condominium-cli $1 $2 getblockcount)
 
-condominium-cli $1 $2 getblockcount > ~/condominium/blockcount
+/usr/local/bin/condominium-cli $1 $2 getblockcount > ~/condominium/blockcount
 
 if [ "$previousBlock" == "$currentBlock" ]; then
-  condominium-cli $1 $2 stop
+  /usr/local/bin/condominium-cli $1 $2 stop
   sleep 5
-  condominiumd -daemon $1 $2 
+  /usr/local/bin/condominiumd -daemon $1 $2 
 fi 
