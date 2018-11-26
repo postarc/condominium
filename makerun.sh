@@ -11,5 +11,5 @@ if ps -u $USER | grep -v grep | grep $process > /dev/null
 then
   exit
 else
-  $makerun -daemon $1 $2 &
+  /usr/local/bin/$makerun -daemon $1 $2 &
 fi 
